@@ -7,7 +7,7 @@ function tfa_basic_overview($form, &$form_state, $account) {
 
   $output['info'] = array(
     '#type' => 'markup',
-    '#markup' => '<p>' . t('Two-factor authentication (TFA) provides additional security for your account. With TFA enabled, you log in to the site with a verification code in addition to your username and password.') . '</p>',
+    '#markup' => '<p>' . t('A kétlépcsős hitelesítés (TFA) a hozzáférés biztonságát növelő biztonsági eljárás. Aktivált kétlépcsős azonosítással a felhasználói azonosító és jelszó mellett egy számokból álló azonosító kód szükséges a bejelentkezéshez.') . '</p>',
   );
   $form_state['storage']['account'] = $account;
   $user_tfa = tfa_basic_get_tfa_data($account);
@@ -15,10 +15,10 @@ function tfa_basic_overview($form, &$form_state, $account) {
 
   if (!empty($user_tfa)) {
     if ($enabled) {
-      $status_text = t('Status: <strong>TFA enabled</strong>, set !time. <a href="!url">Disable TFA</a>', array('!time' => format_date($user_tfa['saved']), '!url' => url('user/' . $account->uid . '/security/tfa/disable')));
+      $status_text = t('Status: <strong>TFA aktiválva</strong>, set !time. <a href="!url">TFA kikapcsolása</a>', array('!time' => format_date($user_tfa['saved']), '!url' => url('user/' . $account->uid . '/security/tfa/disable')));
     }
     else {
-      $status_text = t('Status: <strong>TFA disabled</strong>, set !time.', array('!time' => format_date($user_tfa['saved'])));
+      $status_text = t('Status: <strong>TFA kikapcsolva</strong>, set !time.', array('!time' => format_date($user_tfa['saved'])));
     }
     $output['status'] = array(
       '#type' => 'markup',
@@ -70,18 +70,18 @@ function _tfa_basic_plugin_setup_form_overview($plugin, $account, array $user_tf
         'heading' => array(
           '#theme' => 'html_tag',
           '#tag' => 'h3',
-          '#value' => t('TFA application'),
+          '#value' => t('TFA app'),
         ),
         'description' => array(
           '#theme' => 'html_tag',
           '#tag' => 'p',
-          '#value' => t('Generate verification codes from a mobile or desktop application.'),
+          '#value' => t('Azonosító kód létrehozása telefonon.'),
         ),
         'link' => array(
           '#prefix' => '<p>',
           '#theme' => 'link',
           '#path' => 'user/' . $account->uid . '/security/tfa/app-setup',
-          '#text' => !$enabled ? t('Set up application') : t('Reset application'),
+          '#text' => !$enabled ? t('Az app telepítése') : t('Az app leválasztása'),
           '#options' => array('attributes' => array(), 'html' => FALSE),
           '#suffix' => '</p>',
         ),
@@ -179,28 +179,28 @@ function _tfa_basic_plugin_setup_form_overview($plugin, $account, array $user_tf
         'heading' => array(
           '#theme' => 'html_tag',
           '#tag' => 'h3',
-          '#value' => t('Recovery codes'),
+          '#value' => t('Visszaállító kódok'),
         ),
         'description' => array(
           '#theme' => 'html_tag',
           '#tag' => 'p',
-          '#value' => t('Pre-generated, one-time-use codes intended as a fallback should other methods be unavailable.'),
+          '#value' => t('Biztonsági visszaállító kód létrehozása, arra az esetre, ha a telefonos hitelesítő app nem működik, vagy a telefon használható.'),
         ),
       );
       $recovery_codes = $recovery->getCodes();
       if (empty($recovery_codes)) {
-        $codes_text = t('Get recovery codes');
+        $codes_text = t('Visszaállító kód létrehozása');
       }
       else {
         $output['list'] = array(
           '#prefix' => '<p>',
           '#theme' => 'link',
           '#path' => 'user/' . $account->uid . '/security/tfa/recovery-codes-list',
-          '#text' => t('View unused recovery codes'),
+          '#text' => t('Még nem használt visszaállító kódok'),
           '#options' => array('attributes' => array(), 'html' => FALSE),
           '#suffix' => '</p>',
         );
-        $codes_text = t('Get new recovery codes');
+        $codes_text = t('Új visszaállító kódok létrehozása');
       }
       $output['link'] = array(
         '#prefix' => '<p>',
@@ -222,18 +222,18 @@ function tfa_basic_disable_form($form, &$form_state, $account) {
   $form_state['storage']['account'] = $account;
 
   if ($account->uid != $user->uid && user_access('administer users')) {
-    $preamble_desc = t('Are you sure you want to disable TFA on account %name?', array('%name' => $account->name));
-    $notice_desc = t('TFA settings and data will be lost. %name can re-enable TFA again from their profile.', array('%name' => $account->name));
+    $preamble_desc = t('Biztos ki akarod kapcsolni a(z) %name felhasználói fiók kétképcsős azonosítását?', array('%name' => $account->name));
+    $notice_desc = t('TFA beállítások és adatok el fognak veszni, és %name csak adminisztrátori segítséggel tud újra belejentkezni a rendszerbe.', array('%name' => $account->name));
     if (tfa_basic_tfa_required($account)) {
-      drupal_set_message(t("This account is required to have TFA enabled per the 'require TFA' permission on one of their roles. Disabling TFA will remove their ability to log back into the site. If you continue, consider also removing the role so they can authenticate and setup TFA again."), 'warning');
+      drupal_set_message(t("TFA beállítások és adatok el fognak veszni, és csak adminisztrátori segítséggel tud újra bejelentkezni a rendszerbe."), 'warning');
     }
   }
   else {
-    $preamble_desc = t('Are you sure you want to disable your two-factor authentication setup?');
+    $preamble_desc = t('Biztos ki akarod kapcsolni a fiók kétképcsős azonosítást?');
     $notice_desc = t("Your settings and data will be lost. You can re-enable two-factor authentication again from your profile.");
     if (tfa_basic_tfa_required($account)) {
-      drupal_set_message(t('Your account must have at least one two-factor authentication method enabled. Continuing will disable your ability to log back into this site.'), 'warning');
-      $notice_desc = t('Your settings and data will be lost and you will be unable to log back into the site. To regain access contact a site administrator.');
+      drupal_set_message(t('A fiók használatáshoz kétlépcsős azonosítás szükséges. Csak adminisztrátori segítséggel tudsz legközelebb bejelentkezni az oldalra!'), 'warning');
+      $notice_desc = t('TFA beállítások és adatok el fognak veszni, és csak adminisztrátori segítséggel tud újra bejelentkezni a rendszerbe.');
     }
   }
   $form['preamble'] = array(
@@ -249,7 +249,7 @@ function tfa_basic_disable_form($form, &$form_state, $account) {
 
   $form['account']['current_pass'] = array(
     '#type' => 'password',
-    '#title' => t('Confirm your current password'),
+    '#title' => t('Add meg a jelszavadat!'),
     '#description_display' => 'before',
     '#size' => 25,
     '#weight' => -5,
@@ -346,11 +346,11 @@ function tfa_basic_setup_form($form, &$form_state, $account, $method = 'tfa_basi
       $current_pass_description = t('Enter your current password to alter TFA settings for account %name.', array('%name' => $account->name));
     }
     else {
-      $current_pass_description = t('Enter your current password to continue.');
+      $current_pass_description = t('Add meg a jelszavadat a folytatáshoz!');
     }
     $form['current_pass'] = array(
       '#type' => 'password',
-      '#title' => t('Current password'),
+      '#title' => t('Jelszó'),
       '#size' => 25,
       '#required' => TRUE,
       '#description' => $current_pass_description,
@@ -358,7 +358,7 @@ function tfa_basic_setup_form($form, &$form_state, $account, $method = 'tfa_basi
     );
     $form['submit'] = array(
       '#type' => 'submit',
-      '#value' => t('Confirm'),
+      '#value' => t('Tovább'),
     );
     $form['cancel'] = array(
       '#type' => 'submit',
@@ -386,14 +386,14 @@ function tfa_basic_setup_form($form, &$form_state, $account, $method = 'tfa_basi
     $context = array('uid' => $account->uid);
     switch ($method) {
       case 'tfa_basic_totp':
-        drupal_set_title(t('TFA setup - Application'));
+        drupal_set_title(t('TFA app beállítása'));
         $setup_plugin = new TfaTotpSetup($context);
         $tfa_setup = new TfaSetup($setup_plugin, $context);
 
         if (!empty($tfa_data)) {
           $form['disclaimer'] = array(
             '#type' => 'markup',
-            '#markup' => '<p>' . t('Note: You should delete the old account in your mobile or desktop app before adding this new one.') . '</p>',
+            '#markup' => '<p>' . t('Töröld a telefonodról a korábbi beállítást, mielőtt ezt hozzáadod!') . '</p>',
           );
         }
         $form = $tfa_setup->getForm($form, $form_state);
@@ -409,7 +409,7 @@ function tfa_basic_setup_form($form, &$form_state, $account, $method = 'tfa_basi
         break;
 
       case 'tfa_basic_recovery_code':
-        drupal_set_title(t('TFA setup - Recovery codes'));
+        drupal_set_title(t('TFA beállítás - Visszaállító kódok'));
         $setup_plugin = new TfaBasicRecoveryCodeSetup($context);
         $tfa_setup = new TfaSetup($setup_plugin, $context);
         $form = $tfa_setup->getForm($form, $form_state);
